@@ -1,7 +1,9 @@
 import { User } from "@prisma/client";
 import { prisma } from "../../../app";
+import { hashPassword } from "../../../helpers/passwordHashing";
 
 const userSignup = async (payload: User) => {
+    payload.password = await hashPassword(payload.password)
     const user = await prisma.user.create(
         {
             data: payload
