@@ -17,7 +17,7 @@ const deleteCategory = async (payload: string) => {
     return deletedCategory
 }
 
-const getCategory = async (payload: string) => {
+const getSingleCategory = async (payload: string) => {
     const getCategory = await prisma.category.findUnique({
         where: {
             id: payload
@@ -45,7 +45,7 @@ export const CategoryService = {
     getAllCategory,
     deleteCategory,
     updateCategory,
-    getCategory,
+    getSingleCategory,
     createCategory
 }
 
