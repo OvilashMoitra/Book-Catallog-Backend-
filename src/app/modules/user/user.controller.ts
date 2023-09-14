@@ -57,6 +57,19 @@ const getAllUser = async (req: Request, res: Response, next: NextFunction) => {
         next(error)
     }
 }
+const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const updatedUser = await UserService.updateUser(req.body, req.params.id)
+        if (!updatedUser) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, "Failed updating user")
+        }
+        const modifiedUser: Partial<User> = updatedUser
+        modifiedUser.password = undefined
+        sendResponse(res, 'User updated successfully', modifiedUser)
+    } catch (error) {
+        next(error)
+    }
+}
 
 
 
@@ -64,5 +77,6 @@ export const UserController = {
     userSignup,
     deletedUser,
     getSingleUser,
-    getAllUser
+    getAllUser,
+    updateUser
 }
