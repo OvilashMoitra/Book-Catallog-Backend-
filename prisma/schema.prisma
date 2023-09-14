@@ -79,8 +79,8 @@ model OrderedBook {
 
 
 enum Role {
-  ADMIN
-  CUSTOMER
+  admin
+  customer
 }
 
 enum Status{
