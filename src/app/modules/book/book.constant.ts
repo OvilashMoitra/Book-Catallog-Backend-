@@ -1,0 +1,1 @@
+export const searchFilterFeilds = ["title", "author", "genre", "category", "searchTerm"]
