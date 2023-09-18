@@ -1,4 +1,4 @@
-import { Book, Prisma } from "@prisma/client";
+import { Book } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import { prisma } from "../../../app";
 import { ApiError } from "../../../errors/ApiError";
@@ -6,6 +6,14 @@ import { IPaginationOptions } from "../../../interfaces/pagination";
 import { IBookFilter } from "./book.interface";
 
 const createBook = async (payload: Book) => {
+    const category = await prisma.category.findUnique({
+        where: {
+            id: payload.categoryId
+        }
+    })
+    if (!category) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "Category not found")
+    }
     const book = await prisma.book.create({
         data: payload
     })
@@ -108,6 +116,16 @@ const getAllBook = async (filter: Partial<IBookFilter>, pagination: IPaginationO
 }
 
 const updateBook = async (payload: Partial<Book>, id: string) => {
+    if (payload.categoryId) {
+        const category = await prisma.category.findUnique({
+            where: {
+                id: payload.categoryId
+            }
+        })
+        if (!category) {
+            throw new ApiError(StatusCodes.NOT_FOUND, "Category not found")
+        }
+    }
     const updatedBook = await prisma.book.update({
         where: {
             id
