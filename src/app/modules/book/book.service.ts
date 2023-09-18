@@ -1,5 +1,9 @@
-import { Book } from "@prisma/client";
+import { Book, Prisma } from "@prisma/client";
+import { StatusCodes } from "http-status-codes";
 import { prisma } from "../../../app";
+import { ApiError } from "../../../errors/ApiError";
+import { IPaginationOptions } from "../../../interfaces/pagination";
+import { IBookFilter } from "./book.interface";
 
 const createBook = async (payload: Book) => {
     const book = await prisma.book.create({
@@ -28,18 +32,71 @@ const getSingleBook = async (payload: string) => {
     })
     return getBook
 }
+const getBookByCategory = async (payload: string) => {
+    const category = await prisma.category.findUnique({
+        where: { id: payload }
+    })
+    if (!category) {
+        throw new ApiError(StatusCodes.NOT_FOUND, "Category not found")
+    }
+    const bookByCategory = await prisma.book.findMany({
+        where: {
+            categoryId: payload
+        },
+        include: {
+            category: true
+        }
+    })
+    return bookByCategory
+}
 
-const getAllBook = async (searchFilter: Record<string, any>, pagination: Record<string, any>) => {
+const getAllBook = async (filter: Partial<IBookFilter>, pagination: IPaginationOptions) => {
 
-    // const {"searchTerm",...filter}=searchFilter
+    const { searchTerm, ...filterFeilds } = filter
+    const andConditions = [];
+    console.log(filter);
+    // if (searchTerm) {
+    //     andConditions.push({
+    //         OR: searchFilterFeilds.map((field) => ({
+    //             [field]: {
+    //                 contains: searchTerm,
+    //                 mode: 'insensitive'
+    //             }
+    //         }))
+    //     });
+    // }
 
+    if (Object.keys(filterFeilds).length > 0) {
+        andConditions.push({
+            AND: Object.keys(filterFeilds).map((key) => {
+                if (key === "categoryId") {
+                    return {
+                        "categoryId": {
+                            id: (filterFeilds as any)[key]
+                        }
+                    };
+                } else {
+                    return {
+                        [key]: {
+                            equals: (filterFeilds as any)[key]
+                        }
+                    };
+                }
+            })
+        });
+    }
 
-    const getAllBook = await prisma.book.findMany({
-        where: {},
-        include: { category: true },
-        skip: 3,
-        take: 4,
+    const whereConditions: Prisma.BookWhereInput =
+        andConditions.length > 0 ? { AND: andConditions } : {};
 
+    console.dir(whereConditions);
+    const allBooks = await prisma.book.findMany({
+        where: {
+            category: {
+                title: 'fff'
+            }
+        },
+        include: { category: true }
     })
     const meta = {
         "page": 3,
@@ -47,7 +104,7 @@ const getAllBook = async (searchFilter: Record<string, any>, pagination: Record<
         "total": prisma.book.count,
         "totalPage": 7
     }
-    return getAllBook
+    return allBooks
 }
 
 const updateBook = async (payload: Partial<Book>, id: string) => {
@@ -69,7 +126,8 @@ export const BookService = {
     deleteBook,
     updateBook,
     getSingleBook,
-    createBook
+    createBook,
+    getBookByCategory
 }
 
 

@@ -10,8 +10,8 @@ const getAllBook = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const searchFilterQuery = pick(req.query, searchFilterFeilds)
         const paginationQuery = pick(req.query, paginationFields)
-        console.log(searchFilterQuery);
-        console.log(paginationQuery);
+        // console.log(searchFilterQuery);
+        // console.log(paginationQuery);
         const books = await BookService.getAllBook(searchFilterQuery, paginationQuery)
         console.log({ books });
         if (!books) {
@@ -24,7 +24,24 @@ const getAllBook = async (req: Request, res: Response, next: NextFunction) => {
         next(error)
     }
 }
+const getBookByCategory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const books = await BookService.getBookByCategory(req.query.categoryId as string)
+
+        if (!books) {
+            throw new ApiError(404, "No book found in this Category")
+        }
+
+        sendResponse(res, 'Successfully all books retrieved by Category', books)
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+
 
 export const BookController = {
-    getAllBook
+    getAllBook,
+    getBookByCategory
 }

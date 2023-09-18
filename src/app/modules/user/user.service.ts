@@ -1,6 +1,9 @@
 import { User } from "@prisma/client";
+import { StatusCodes } from "http-status-codes";
 import { prisma } from "../../../app";
-import { hashPassword } from "../../../helpers/passwordHashing";
+import { ApiError } from "../../../errors/ApiError";
+import { hashPassword, matchPassword } from "../../../helpers/passwordHashing";
+import { IUserCredential } from "./user.interface";
 
 const userSignup = async (payload: User) => {
     payload.password = await hashPassword(payload.password)
@@ -9,6 +12,30 @@ const userSignup = async (payload: User) => {
             data: payload
         }
     )
+    return user
+}
+const userLogin = async (payload: IUserCredential) => {
+
+    const user = await prisma.user.findUnique({
+        where: {
+            email: payload.email
+        },
+        select: {
+            email: true,
+            id: true,
+            role: true,
+            password: true
+        }
+    })
+    if (!user) {
+        throw new ApiError(StatusCodes.FORBIDDEN, "User not found")
+    }
+    let isMatched;
+    isMatched = await matchPassword(payload.password, user.password)
+    if (isMatched === false) {
+        throw new ApiError(StatusCodes.FORBIDDEN, "Password does not match")
+    }
+
     return user
 }
 
@@ -51,5 +78,6 @@ export const UserService = {
     getSingleUser,
     deleteUser,
     getAllUser,
-    updateUser
+    updateUser,
+    userLogin
 }

@@ -1,7 +1,10 @@
 import { User } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import config from '../../../config';
 import { ApiError } from '../../../errors/ApiError';
+import { JWTHelper } from '../../../helpers/jwtHelper';
+import { IJWTPayload } from '../../../interfaces/common';
 import { sendResponse } from '../../../shared/sendResponse';
 import { UserService } from './user.service';
 const userSignup = async (req: Request, res: Response, next: NextFunction) => {
@@ -13,6 +16,17 @@ const userSignup = async (req: Request, res: Response, next: NextFunction) => {
         const modifiedUser: Partial<User> = user
         modifiedUser.password = undefined
         sendResponse(res, 'Successfully user created', modifiedUser)
+
+    } catch (error) {
+        next(error)
+    }
+}
+const userLogin = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = await UserService.userLogin(req.body)
+        const jwtPayload: IJWTPayload = { email: user.email, id: user.id, role: user.role }
+        const accessToken = await JWTHelper.generateJWTToken(jwtPayload, config.jwt.secret!, config.jwt.expires_in!)
+        sendResponse(res, 'Successfully user logged in', { accessToken })
 
     } catch (error) {
         next(error)
@@ -78,5 +92,6 @@ export const UserController = {
     deletedUser,
     getSingleUser,
     getAllUser,
-    updateUser
+    updateUser,
+    userLogin
 }

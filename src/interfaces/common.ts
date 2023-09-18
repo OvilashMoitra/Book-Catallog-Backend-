@@ -14,3 +14,9 @@ export type IGenericErrorResponse = {
   message: string;
   errorMessages: IGenericErrorMessage[];
 };
+
+export type IJWTPayload = {
+  email: string,
+  role: string,
+  id: string
+}
