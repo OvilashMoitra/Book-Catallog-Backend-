@@ -26,13 +26,70 @@ const getAllBook = async (req: Request, res: Response, next: NextFunction) => {
 }
 const getBookByCategory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const books = await BookService.getBookByCategory(req.query.categoryId as string)
+        const books = await BookService.getBookByCategory(req.params.categoryId as string)
 
         if (!books) {
             throw new ApiError(404, "No book found in this Category")
         }
 
-        sendResponse(res, 'Successfully all books retrieved by Category', books)
+        sendResponse(res, 'Successfully retrieved all books by Category', books)
+
+    } catch (error) {
+        next(error)
+    }
+}
+const getSingleBook = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const book = await BookService.getSingleBook(req.params.id)
+
+        if (!book) {
+            throw new ApiError(404, "No book found")
+        }
+
+        sendResponse(res, 'Successfully  retrieved the book', book)
+
+    } catch (error) {
+        next(error)
+    }
+}
+const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const book = await BookService.deleteBook(req.params.id)
+
+        if (!book) {
+            throw new ApiError(404, "No book found")
+        }
+
+        sendResponse(res, 'Successfully  deleted the book', book)
+
+    } catch (error) {
+        next(error)
+    }
+}
+const createBook = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const book = await BookService.createBook(req.body)
+
+        if (!book) {
+            throw new ApiError(404, "Error creating book")
+        }
+
+        sendResponse(res, 'Successfully  created the book', book)
+
+    } catch (error) {
+        next(error)
+    }
+}
+
+const updateBook = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const book = await BookService.updateBook(req.body, req.params.id)
+
+        if (!book) {
+            throw new ApiError(404, "Error creating book")
+        }
+
+        sendResponse(res, 'Successfully  created the book', book)
 
     } catch (error) {
         next(error)
@@ -40,8 +97,11 @@ const getBookByCategory = async (req: Request, res: Response, next: NextFunction
 }
 
 
-
 export const BookController = {
     getAllBook,
-    getBookByCategory
+    getBookByCategory,
+    deleteBook,
+    getSingleBook,
+    createBook,
+    updateBook
 }
