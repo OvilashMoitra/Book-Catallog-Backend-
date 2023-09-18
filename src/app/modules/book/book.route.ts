@@ -3,8 +3,9 @@ import { BookController } from "./book.controller";
 
 export const BookRouter = express.Router();
 
-// BookRouter.post('/signup', UserController.userSignup)
-// BookRouter.delete('/:id', UserController.deletedUser)
-// BookRouter.get('/:id', UserController.getSingleUser)
+BookRouter.post('/create-book', BookController.createBook)
+BookRouter.delete('/:id', BookController.deleteBook)
+BookRouter.get('/:id', BookController.getSingleBook)
 BookRouter.get('/', BookController.getAllBook)
-// BookRouter.patch('/:id', UserController.updateUser)
+BookRouter.patch('/:id', BookController.updateBook)
+BookRouter.patch('/:categoryId/category', BookController.updateBook)
