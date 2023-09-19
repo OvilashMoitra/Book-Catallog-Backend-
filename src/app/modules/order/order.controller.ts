@@ -34,7 +34,7 @@ const getAllOrder = async (req: Request, res: Response, next: NextFunction) => {
 
 const getOrderById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userId = req?.params?.id
+        const userId = req?.params?.orderId
         const userInfo: IJWTPayload = req?.user?.data
         const orderById = await OrderService.getOrderById(userId, userInfo)
         if (!orderById) {
