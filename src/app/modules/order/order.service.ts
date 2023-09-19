@@ -75,7 +75,7 @@ const getOrderById = async (payload: string, userInfo: IJWTPayload) => {
 }
 
 
-export const CategoryService = {
+export const OrderService = {
     createOrder,
     getAllOrder,
     getOrderById
