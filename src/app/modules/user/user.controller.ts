@@ -57,6 +57,20 @@ const getSingleUser = async (req: Request, res: Response, next: NextFunction) =>
         next(error)
     }
 }
+const getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userInfo: IJWTPayload = req?.user?.data
+        const user = await UserService.getUserProfile(userInfo)
+        if (!user) {
+            throw new ApiError(StatusCodes.BAD_REQUEST, "Failed getting user")
+        }
+        const modifiedUser: Partial<User> = user
+        modifiedUser.password = undefined
+        sendResponse(res, 'User retrieved successfully', modifiedUser)
+    } catch (error) {
+        next(error)
+    }
+}
 
 const getAllUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -93,5 +107,6 @@ export const UserController = {
     getSingleUser,
     getAllUser,
     updateUser,
-    userLogin
+    userLogin,
+    getUserProfile
 }

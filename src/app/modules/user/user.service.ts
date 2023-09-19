@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { prisma } from "../../../app";
 import { ApiError } from "../../../errors/ApiError";
 import { hashPassword, matchPassword } from "../../../helpers/passwordHashing";
+import { IJWTPayload } from "../../../interfaces/common";
 import { IUserCredential } from "./user.interface";
 
 const userSignup = async (payload: User) => {
@@ -47,6 +48,14 @@ const getSingleUser = async (payload: string) => {
     })
     return user
 }
+const getUserProfile = async (payload: IJWTPayload) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            id: payload.id
+        }
+    })
+    return user
+}
 
 const deleteUser = async (payload: string) => {
     const deletedUser = await prisma.user.delete({
@@ -79,5 +88,6 @@ export const UserService = {
     deleteUser,
     getAllUser,
     updateUser,
-    userLogin
+    userLogin,
+    getUserProfile
 }
