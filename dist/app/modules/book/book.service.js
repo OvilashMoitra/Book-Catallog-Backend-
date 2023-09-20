@@ -25,7 +25,6 @@ const http_status_codes_1 = require("http-status-codes");
 const app_1 = require("../../../app");
 const ApiError_1 = require("../../../errors/ApiError");
 const paginationHelper_1 = require("../../../helpers/paginationHelper");
-const book_constant_1 = require("./book.constant");
 const createBook = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const category = yield app_1.prisma.category.findUnique({
         where: {
@@ -79,30 +78,6 @@ const getBookByCategory = (payload) => __awaiter(void 0, void 0, void 0, functio
 const getAllBook = (filter, pagination) => __awaiter(void 0, void 0, void 0, function* () {
     const { searchTerm } = filter, filterFeilds = __rest(filter, ["searchTerm"]);
     const andConditions = [];
-    if (searchTerm) {
-        andConditions.push({
-            OR: book_constant_1.searchFields.map((field) => {
-                if (field === "category") {
-                    return {
-                        "category": {
-                            "title": {
-                                contains: searchTerm,
-                                mode: 'insensitive'
-                            }
-                        }
-                    };
-                }
-                if (field !== "category") {
-                    return {
-                        [field]: {
-                            contains: searchTerm,
-                            mode: 'insensitive'
-                        }
-                    };
-                }
-            })
-        });
-    }
     if (Object.keys(filterFeilds).length > 0) {
         andConditions.push({
             AND: Object.keys(filterFeilds).map((key) => {
@@ -117,10 +92,10 @@ const getAllBook = (filter, pagination) => __awaiter(void 0, void 0, void 0, fun
         });
     }
     const whereConditions = andConditions.length > 0 ? { AND: andConditions } : {};
-    console.log(whereConditions);
-    console.dir(whereConditions);
     const allBooks = yield app_1.prisma.book.findMany({
-        include: { category: true },
+        include: {
+            category: true,
+        },
         where: whereConditions,
         skip: (0, paginationHelper_1.paginationHelper)(pagination).skip || 0,
         take: (0, paginationHelper_1.paginationHelper)(pagination).take || 10,
@@ -133,9 +108,9 @@ const getAllBook = (filter, pagination) => __awaiter(void 0, void 0, void 0, fun
     const meta = {
         "page": pagination.page || 1,
         "size": pagination.limit || 10,
-        "total": yield app_1.prisma.book.count,
+        "total": yield app_1.prisma.book.count(),
     };
-    return { meta, allBooks, whereConditions };
+    return { meta, allBooks };
 });
 const updateBook = (payload, id) => __awaiter(void 0, void 0, void 0, function* () {
     if (payload.categoryId) {

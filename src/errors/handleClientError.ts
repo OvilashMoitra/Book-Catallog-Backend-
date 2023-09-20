@@ -26,6 +26,15 @@ const handleClientError = (error: PrismaClientKnownRequestError) => {
                 }
             ]
         }
+    } else {
+        message = "Field not unique"
+        errors = [
+            {
+                path: "",
+                message
+            }
+        ]
+
     }
 
     return {
