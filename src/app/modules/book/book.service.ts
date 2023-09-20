@@ -1,8 +1,10 @@
-import { Book } from "@prisma/client";
+import { Book, Prisma } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import { prisma } from "../../../app";
 import { ApiError } from "../../../errors/ApiError";
+import { paginationHelper } from "../../../helpers/paginationHelper";
 import { IPaginationOptions } from "../../../interfaces/pagination";
+import { searchFields } from "./book.constant";
 import { IBookFilter } from "./book.interface";
 
 const createBook = async (payload: Book) => {
@@ -62,28 +64,36 @@ const getAllBook = async (filter: Partial<IBookFilter>, pagination: IPaginationO
 
     const { searchTerm, ...filterFeilds } = filter
     const andConditions = [];
-    console.log(filter);
-    // if (searchTerm) {
-    //     andConditions.push({
-    //         OR: searchFilterFeilds.map((field) => ({
-    //             [field]: {
-    //                 contains: searchTerm,
-    //                 mode: 'insensitive'
-    //             }
-    //         }))
-    //     });
-    // }
+
+    if (searchTerm) {
+        andConditions.push({
+            OR: searchFields.map((field) => {
+                if (field === "category") {
+                    return {
+                        "category": {
+                            "title": {
+                                contains: searchTerm,
+                                mode: 'insensitive'
+                            }
+                        }
+                    };
+                }
+                if (field !== "category") {
+                    return {
+                        [field]: {
+                            contains: searchTerm,
+                            mode: 'insensitive'
+                        }
+                    }
+                }
+            })
+        });
+    }
 
     if (Object.keys(filterFeilds).length > 0) {
         andConditions.push({
             AND: Object.keys(filterFeilds).map((key) => {
-                if (key === "categoryId") {
-                    return {
-                        "categoryId": {
-                            id: (filterFeilds as any)[key]
-                        }
-                    };
-                } else {
+                {
                     return {
                         [key]: {
                             equals: (filterFeilds as any)[key]
@@ -96,23 +106,26 @@ const getAllBook = async (filter: Partial<IBookFilter>, pagination: IPaginationO
 
     const whereConditions: Prisma.BookWhereInput =
         andConditions.length > 0 ? { AND: andConditions } : {};
-
+    console.log(whereConditions);
     console.dir(whereConditions);
     const allBooks = await prisma.book.findMany({
-        where: {
-            category: {
-                title: 'fff'
-            }
+        include: { category: true },
+        where: whereConditions,
+        skip: paginationHelper(pagination).skip || 0,
+        take: paginationHelper(pagination).take || 10,
+        orderBy: pagination.sortBy && pagination.sortOrder
+            ? { [pagination.sortBy]: pagination.sortOrder }
+            : {
+                createdAt: 'desc'
         },
-        include: { category: true }
+
     })
     const meta = {
-        "page": 3,
-        "size": 10,
-        "total": prisma.book.count,
-        "totalPage": 7
+        "page": pagination.page || 1,
+        "size": pagination.limit || 10,
+        "total": await prisma.book.count,
     }
-    return allBooks
+    return { meta, allBooks, whereConditions }
 }
 
 const updateBook = async (payload: Partial<Book>, id: string) => {
