@@ -6,6 +6,8 @@ import { IJWTPayload } from "../../../interfaces/common";
 import { IOrderCreatePayload } from "./order.interface";
 
 const createOrder = async (userInfo: IJWTPayload, payload: IOrderCreatePayload) => {
+    console.log('payload from order body', payload);
+    console.log({ userInfo });
     const orderTransaction = await prisma.$transaction(async (tx) => {
         const orderData = {
             userId: userInfo.id,
@@ -13,6 +15,7 @@ const createOrder = async (userInfo: IJWTPayload, payload: IOrderCreatePayload) 
         const order = await tx.order.create({
             data: orderData
         })
+        console.log({ order });
         let bookToOrderPromises;
         bookToOrderPromises = payload.orderedBooks.map(async (book) => {
             const isExist = await tx.book.findUnique({
@@ -27,6 +30,7 @@ const createOrder = async (userInfo: IJWTPayload, payload: IOrderCreatePayload) 
             }
         })
         const bookToOrder = await Promise.all(bookToOrderPromises);
+        console.log({ bookToOrder });
         if (bookToOrder.length > 0) {
             await tx.orderedBook.createMany({
                 data: bookToOrder,
@@ -48,11 +52,18 @@ const createOrder = async (userInfo: IJWTPayload, payload: IOrderCreatePayload) 
 }
 const getAllOrder = async (userInfo: IJWTPayload) => {
     if (userInfo.role === Role.admin) {
-        return await prisma.order.findMany({})
+        return await prisma.order.findMany({
+            include: {
+                orderedBooks: true
+            }
+        })
     } else {
-        return await prisma.order.findUnique({
+        return await prisma.order.findMany({
             where: {
                 id: userInfo.id
+            },
+            include: {
+                orderedBooks: true
             }
         })
     }
@@ -60,17 +71,18 @@ const getAllOrder = async (userInfo: IJWTPayload) => {
 }
 
 const getOrderById = async (payload: string, userInfo: IJWTPayload) => {
-    if (userInfo.id !== payload) {
-        throw new ApiError(StatusCodes.FORBIDDEN, "You do not have permission to see this")
-    }
-    const order = await prisma.order.findMany({
+
+    const order = await prisma.order.findUnique({
         where: {
-            userId: payload
+            id: payload
         },
         include: {
             orderedBooks: true
         }
     })
+    if (order?.userId !== userInfo.id && userInfo.role !== Role.admin) {
+        throw new ApiError(StatusCodes.FORBIDDEN, "You do not have permission to see this")
+    }
     return order
 }
 

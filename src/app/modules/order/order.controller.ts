@@ -7,7 +7,7 @@ import { OrderService } from "./order.service"
 
 const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userInfo: IJWTPayload = req?.user?.data
+        const userInfo: IJWTPayload = req?.user as IJWTPayload
         const order = await OrderService.createOrder(userInfo, req.body)
         if (!order) {
             throw new ApiError(404, "Error initialing order")
@@ -20,7 +20,7 @@ const createOrder = async (req: Request, res: Response, next: NextFunction) => {
 }
 const getAllOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userInfo: IJWTPayload = req?.user?.data
+        const userInfo: IJWTPayload = req?.user as IJWTPayload
         const allOrder = await OrderService.getAllOrder(userInfo)
         if (!allOrder) {
             throw new ApiError(StatusCodes.NOT_FOUND, "Error getting the orders")
@@ -34,9 +34,9 @@ const getAllOrder = async (req: Request, res: Response, next: NextFunction) => {
 
 const getOrderById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userId = req?.params?.orderId
-        const userInfo: IJWTPayload = req?.user?.data
-        const orderById = await OrderService.getOrderById(userId, userInfo)
+        const orderId = req?.params?.orderId
+        const userInfo: IJWTPayload = req?.user as IJWTPayload
+        const orderById = await OrderService.getOrderById(orderId, userInfo)
         if (!orderById) {
             throw new ApiError(StatusCodes.NOT_FOUND, "Error getting the orders")
         }
