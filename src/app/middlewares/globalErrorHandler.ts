@@ -5,8 +5,11 @@ import { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import config from '../../config';
 
 
+import { PrismaClientKnownRequestError, PrismaClientValidationError } from '@prisma/client/runtime/library';
 import { ZodError } from 'zod';
 import { ApiError } from '../../errors/ApiError';
+import handleClientError from '../../errors/handleClientError';
+import handleValidationError from '../../errors/handleValidationError';
 import handleZodError from '../../errors/handleZodError';
 import { IGenericErrorMessage } from '../../interfaces/error';
 
@@ -41,7 +44,18 @@ const globalErrorHandler: ErrorRequestHandler = (
           },
         ]
       : [];
-  } else if (error instanceof Error) {
+  } else if (error instanceof PrismaClientValidationError) {
+    const simplifiedError = handleValidationError(error);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorMessages = simplifiedError.errorMessages;
+  } else if (error instanceof PrismaClientKnownRequestError) {
+    const simplifiedError = handleClientError(error);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+    errorMessages = simplifiedError.errorMessages;
+  }
+  else if (error instanceof Error) {
     message = error?.message;
     errorMessages = error?.message
       ? [

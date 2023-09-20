@@ -26,8 +26,13 @@ const userLogin = async (req: Request, res: Response, next: NextFunction) => {
         const user = await UserService.userLogin(req.body)
         const jwtPayload: IJWTPayload = { email: user.email, id: user.id, role: user.role }
         const accessToken = await JWTHelper.generateJWTToken(jwtPayload, config.jwt.secret!, config.jwt.expires_in!)
-        sendResponse(res, 'Successfully user logged in', { accessToken })
 
+        res.status(200).json({
+            "success": true,
+            "statusCode": 200,
+            "message": "User signin successfully!",
+            "token": accessToken
+        })
     } catch (error) {
         next(error)
     }

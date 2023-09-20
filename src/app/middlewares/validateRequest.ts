@@ -5,12 +5,8 @@ const validateRequest =
   (schema: AnyZodObject | ZodEffects<AnyZodObject>) =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await schema.parseAsync({
-        body: req.body,
-        query: req.query,
-        params: req.params,
-        cookies: req.cookies,
-      });
+      console.log('from zod validateRequest', req.body);
+      await schema.parseAsync(req.body);
       return next();
     } catch (error) {
       next(error);

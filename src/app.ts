@@ -7,7 +7,9 @@ import routes from './app/routes';
 import cookieParser from 'cookie-parser';
 import { StatusCodes } from 'http-status-codes';
 
-export const prisma = new PrismaClient();
+export const prisma = new PrismaClient({
+  errorFormat: 'pretty',
+});
 const app: Application = express();
 
 app.use(cors());
