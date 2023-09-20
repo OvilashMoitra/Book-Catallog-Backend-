@@ -4,8 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = __importDefault(require("../../config"));
+const library_1 = require("@prisma/client/runtime/library");
 const zod_1 = require("zod");
 const ApiError_1 = require("../../errors/ApiError");
+const handleClientError_1 = __importDefault(require("../../errors/handleClientError"));
+const handleValidationError_1 = __importDefault(require("../../errors/handleValidationError"));
 const handleZodError_1 = __importDefault(require("../../errors/handleZodError"));
 const globalErrorHandler = (error, req, res, next) => {
     config_1.default.env === 'development'
@@ -31,6 +34,18 @@ const globalErrorHandler = (error, req, res, next) => {
                 },
             ]
             : [];
+    }
+    else if (error instanceof library_1.PrismaClientValidationError) {
+        const simplifiedError = (0, handleValidationError_1.default)(error);
+        statusCode = simplifiedError.statusCode;
+        message = simplifiedError.message;
+        errorMessages = simplifiedError.errorMessages;
+    }
+    else if (error instanceof library_1.PrismaClientKnownRequestError) {
+        const simplifiedError = (0, handleClientError_1.default)(error);
+        statusCode = simplifiedError.statusCode;
+        message = simplifiedError.message;
+        errorMessages = simplifiedError.errorMessages;
     }
     else if (error instanceof Error) {
         message = error === null || error === void 0 ? void 0 : error.message;

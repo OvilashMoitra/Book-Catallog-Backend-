@@ -4,7 +4,6 @@ import { prisma } from "../../../app";
 import { ApiError } from "../../../errors/ApiError";
 import { paginationHelper } from "../../../helpers/paginationHelper";
 import { IPaginationOptions } from "../../../interfaces/pagination";
-import { searchFields } from "./book.constant";
 import { IBookFilter } from "./book.interface";
 
 const createBook = async (payload: Book) => {
@@ -65,31 +64,6 @@ const getAllBook = async (filter: Partial<IBookFilter>, pagination: IPaginationO
     const { searchTerm, ...filterFeilds } = filter
     const andConditions = [];
 
-    if (searchTerm) {
-        andConditions.push({
-            OR: searchFields.map((field) => {
-                if (field === "category") {
-                    return {
-                        "category": {
-                            "title": {
-                                contains: searchTerm,
-                                mode: 'insensitive'
-                            }
-                        }
-                    };
-                }
-                if (field !== "category") {
-                    return {
-                        [field]: {
-                            contains: searchTerm,
-                            mode: 'insensitive'
-                        }
-                    }
-                }
-            })
-        });
-    }
-
     if (Object.keys(filterFeilds).length > 0) {
         andConditions.push({
             AND: Object.keys(filterFeilds).map((key) => {
@@ -106,10 +80,11 @@ const getAllBook = async (filter: Partial<IBookFilter>, pagination: IPaginationO
 
     const whereConditions: Prisma.BookWhereInput =
         andConditions.length > 0 ? { AND: andConditions } : {};
-    console.log(whereConditions);
-    console.dir(whereConditions);
+
     const allBooks = await prisma.book.findMany({
-        include: { category: true },
+        include: {
+            category: true,
+        },
         where: whereConditions,
         skip: paginationHelper(pagination).skip || 0,
         take: paginationHelper(pagination).take || 10,
@@ -123,9 +98,9 @@ const getAllBook = async (filter: Partial<IBookFilter>, pagination: IPaginationO
     const meta = {
         "page": pagination.page || 1,
         "size": pagination.limit || 10,
-        "total": await prisma.book.count,
+        "total": await prisma.book.count(),
     }
-    return { meta, allBooks, whereConditions }
+    return { meta, allBooks }
 }
 
 const updateBook = async (payload: Partial<Book>, id: string) => {

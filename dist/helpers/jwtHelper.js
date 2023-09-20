@@ -12,26 +12,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.matchPassword = exports.hashPassword = void 0;
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
+exports.JWTHelper = void 0;
 const http_status_codes_1 = require("http-status-codes");
-const config_1 = __importDefault(require("../config"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const ApiError_1 = require("../errors/ApiError");
-const hashPassword = (password) => __awaiter(void 0, void 0, void 0, function* () {
+const generateJWTToken = (payload, secret, expiresIn) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        return yield bcryptjs_1.default.hash(password, Number(config_1.default.bycrypt_salt_rounds));
+        return yield jsonwebtoken_1.default.sign({
+            data: payload
+        }, secret, { expiresIn: expiresIn });
     }
     catch (error) {
-        throw new ApiError_1.ApiError(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, 'Error salting password');
+        throw new ApiError_1.ApiError(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, "Error encoding JWT Token");
     }
 });
-exports.hashPassword = hashPassword;
-const matchPassword = (givenPassword, password) => __awaiter(void 0, void 0, void 0, function* () {
+const decodeJWTToken = (token, secretKey) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        return yield bcryptjs_1.default.compare(givenPassword, password);
+        return yield jsonwebtoken_1.default.verify(token, secretKey);
     }
     catch (error) {
-        throw new ApiError_1.ApiError(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, 'Error matching password');
+        throw new ApiError_1.ApiError(http_status_codes_1.StatusCodes.INTERNAL_SERVER_ERROR, "Error decoding JWT Token");
     }
 });
-exports.matchPassword = matchPassword;
+exports.JWTHelper = {
+    generateJWTToken,
+    decodeJWTToken
+};

@@ -20,8 +20,8 @@ const getAllBook = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     try {
         const searchFilterQuery = (0, pick_1.pick)(req.query, book_constant_1.searchFilterFeilds);
         const paginationQuery = (0, pick_1.pick)(req.query, pagination_1.paginationFields);
-        console.log(searchFilterQuery);
-        console.log(paginationQuery);
+        // console.log(searchFilterQuery);
+        // console.log(paginationQuery);
         const books = yield book_service_1.BookService.getAllBook(searchFilterQuery, paginationQuery);
         console.log({ books });
         if (!books) {
@@ -33,6 +33,71 @@ const getAllBook = (req, res, next) => __awaiter(void 0, void 0, void 0, functio
         next(error);
     }
 });
+const getBookByCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const books = yield book_service_1.BookService.getBookByCategory(req.params.categoryId);
+        if (!books) {
+            throw new ApiError_1.ApiError(404, "No book found in this Category");
+        }
+        (0, sendResponse_1.sendResponse)(res, 'Successfully retrieved all books by Category', books);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+const getSingleBook = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const book = yield book_service_1.BookService.getSingleBook(req.params.id);
+        if (!book) {
+            throw new ApiError_1.ApiError(404, "No book found");
+        }
+        (0, sendResponse_1.sendResponse)(res, 'Successfully  retrieved the book', book);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+const deleteBook = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const book = yield book_service_1.BookService.deleteBook(req.params.id);
+        if (!book) {
+            throw new ApiError_1.ApiError(404, "No book found");
+        }
+        (0, sendResponse_1.sendResponse)(res, 'Successfully  deleted the book', book);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+const createBook = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const book = yield book_service_1.BookService.createBook(req.body);
+        if (!book) {
+            throw new ApiError_1.ApiError(404, "Error creating book");
+        }
+        (0, sendResponse_1.sendResponse)(res, 'Successfully  created the book', book);
+    }
+    catch (error) {
+        next(error);
+    }
+});
+const updateBook = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const book = yield book_service_1.BookService.updateBook(req.body, req.params.id);
+        if (!book) {
+            throw new ApiError_1.ApiError(404, "Error creating book");
+        }
+        (0, sendResponse_1.sendResponse)(res, 'Successfully  created the book', book);
+    }
+    catch (error) {
+        next(error);
+    }
+});
 exports.BookController = {
-    getAllBook
+    getAllBook,
+    getBookByCategory,
+    deleteBook,
+    getSingleBook,
+    createBook,
+    updateBook
 };
