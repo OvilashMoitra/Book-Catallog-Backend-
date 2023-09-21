@@ -25,6 +25,15 @@ const handleClientError = (error) => {
             ];
         }
     }
+    else {
+        message = "Field not unique";
+        errors = [
+            {
+                path: "",
+                message
+            }
+        ];
+    }
     return {
         statusCode,
         message,
