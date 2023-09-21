@@ -75,9 +75,8 @@ const getSingleUser = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     }
 });
 const getUserProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
-        const userInfo = (_a = req === null || req === void 0 ? void 0 : req.user) === null || _a === void 0 ? void 0 : _a.data;
+        const userInfo = req === null || req === void 0 ? void 0 : req.user;
         const user = yield user_service_1.UserService.getUserProfile(userInfo);
         if (!user) {
             throw new ApiError_1.ApiError(http_status_codes_1.StatusCodes.BAD_REQUEST, "Failed getting user");

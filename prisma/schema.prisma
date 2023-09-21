@@ -19,8 +19,6 @@ model User{
  contactNo String
  address String
  profileImg String
- createdAt DateTime @default(now())
- updatedAt DateTime @updatedAt
  reviews ReviewAndRating[]
   orders Order[]
 }
@@ -28,8 +26,6 @@ model User{
 model Category {
   id String @default(uuid()) @unique
   title String @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   books Book[]
 }
 
@@ -43,8 +39,6 @@ model Book{
   publicationDate String
   categoryId String
   category Category @relation(fields: [categoryId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   reviews ReviewAndRating[]
 }
 
@@ -57,15 +51,12 @@ model ReviewAndRating{
  
   book Book @relation(fields: [bookId],references: [id])
   user User @relation(fields: [userId],references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Order {
   id        String   @id @default(uuid()) 
   userId    String   
   status    Status   @default(pending)
-  createdAt DateTime @default(now()) 
   user User @relation(fields: [userId], references: [id])
   orderedBooks OrderedBook[]
 }

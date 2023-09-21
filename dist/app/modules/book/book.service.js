@@ -102,7 +102,7 @@ const getAllBook = (filter, pagination) => __awaiter(void 0, void 0, void 0, fun
         orderBy: pagination.sortBy && pagination.sortOrder
             ? { [pagination.sortBy]: pagination.sortOrder }
             : {
-                createdAt: 'desc'
+                publicationDate: 'desc'
             },
     });
     const meta = {

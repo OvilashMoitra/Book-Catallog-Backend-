@@ -64,7 +64,7 @@ const getSingleUser = async (req: Request, res: Response, next: NextFunction) =>
 }
 const getUserProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userInfo: IJWTPayload = req?.user?.data
+        const userInfo: IJWTPayload = req?.user as IJWTPayload
         const user = await UserService.getUserProfile(userInfo)
         if (!user) {
             throw new ApiError(StatusCodes.BAD_REQUEST, "Failed getting user")

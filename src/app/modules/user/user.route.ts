@@ -13,6 +13,6 @@ AuthRouter.post('/signin', validateRequest(userZodSchema.userLogin), UserControl
 AuthRouter.post('/signup', validateRequest(userZodSchema.userCreation), UserController.userSignup)
 UserRouter.delete('/:id', authorization(Role.admin), UserController.deletedUser)
 UserRouter.get('/:id', authorization(Role.admin), UserController.getSingleUser)
-ProfileRouter.get('/profile', authorization(Role.admin, Role.customer), UserController.getUserProfile)
+ProfileRouter.get('/', authorization(Role.admin, Role.customer), UserController.getUserProfile)
 UserRouter.get('/', authorization(Role.admin), UserController.getAllUser)
 UserRouter.patch('/:id', validateRequest(userZodSchema.userUpdate), authorization(Role.admin), UserController.updateUser)

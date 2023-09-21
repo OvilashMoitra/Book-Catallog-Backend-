@@ -91,7 +91,7 @@ const getAllBook = async (filter: Partial<IBookFilter>, pagination: IPaginationO
         orderBy: pagination.sortBy && pagination.sortOrder
             ? { [pagination.sortBy]: pagination.sortOrder }
             : {
-                createdAt: 'desc'
+                publicationDate: 'desc'
         },
 
     })

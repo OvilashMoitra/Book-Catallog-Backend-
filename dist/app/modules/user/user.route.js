@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserRouter = void 0;
+exports.ProfileRouter = exports.AuthRouter = exports.UserRouter = void 0;
 const client_1 = require("@prisma/client");
 const express_1 = __importDefault(require("express"));
 const authorization_1 = require("../../middlewares/authorization");
@@ -11,10 +11,12 @@ const validateRequest_1 = __importDefault(require("../../middlewares/validateReq
 const user_controller_1 = require("./user.controller");
 const user_validation_1 = require("./user.validation");
 exports.UserRouter = express_1.default.Router();
-exports.UserRouter.post('/signin', (0, validateRequest_1.default)(user_validation_1.userZodSchema.userLogin), user_controller_1.UserController.userLogin);
-exports.UserRouter.post('/signup', (0, validateRequest_1.default)(user_validation_1.userZodSchema.userCreation), user_controller_1.UserController.userSignup);
+exports.AuthRouter = express_1.default.Router();
+exports.ProfileRouter = express_1.default.Router();
+exports.AuthRouter.post('/signin', (0, validateRequest_1.default)(user_validation_1.userZodSchema.userLogin), user_controller_1.UserController.userLogin);
+exports.AuthRouter.post('/signup', (0, validateRequest_1.default)(user_validation_1.userZodSchema.userCreation), user_controller_1.UserController.userSignup);
 exports.UserRouter.delete('/:id', (0, authorization_1.authorization)(client_1.Role.admin), user_controller_1.UserController.deletedUser);
 exports.UserRouter.get('/:id', (0, authorization_1.authorization)(client_1.Role.admin), user_controller_1.UserController.getSingleUser);
-exports.UserRouter.get('/profile', (0, authorization_1.authorization)(client_1.Role.admin, client_1.Role.customer), user_controller_1.UserController.getUserProfile);
+exports.ProfileRouter.get('/', (0, authorization_1.authorization)(client_1.Role.admin, client_1.Role.customer), user_controller_1.UserController.getUserProfile);
 exports.UserRouter.get('/', (0, authorization_1.authorization)(client_1.Role.admin), user_controller_1.UserController.getAllUser);
 exports.UserRouter.patch('/:id', (0, validateRequest_1.default)(user_validation_1.userZodSchema.userUpdate), (0, authorization_1.authorization)(client_1.Role.admin), user_controller_1.UserController.updateUser);

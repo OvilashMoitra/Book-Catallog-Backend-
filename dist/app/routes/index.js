@@ -11,8 +11,16 @@ const user_route_1 = require("../modules/user/user.route");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
-        path: '/auth',
+        path: '/users',
         routes: user_route_1.UserRouter
+    },
+    {
+        path: '/auth',
+        routes: user_route_1.AuthRouter
+    },
+    {
+        path: '/profile',
+        routes: user_route_1.ProfileRouter
     },
     {
         path: '/categories',
