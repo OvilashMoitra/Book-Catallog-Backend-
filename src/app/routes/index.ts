@@ -2,14 +2,22 @@ import express from 'express';
 import { BookRouter } from '../modules/book/book.route';
 import { CategoryRouter } from '../modules/category/category.route';
 import { OrderRouter } from '../modules/order/order.route';
-import { UserRouter } from '../modules/user/user.route';
+import { AuthRouter, ProfileRouter, UserRouter } from '../modules/user/user.route';
 
 const router = express.Router();
 
 const moduleRoutes = [
   {
-    path: '/auth',
+    path: '/users',
     routes: UserRouter 
+  },
+  {
+    path: '/auth',
+    routes: AuthRouter
+  },
+  {
+    path: '/profile',
+    routes: ProfileRouter 
   },
   {
     path: '/categories',
